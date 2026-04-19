@@ -1,0 +1,167 @@
+package com.voicejournal.speech
+
+import android.content.Context
+import android.os.Bundle
+import android.util.Log
+import com.iflytek.cloud.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+
+class XunfeiSpeechRecognizer(private val context: Context) {
+
+    companion object {
+        private const val APP_ID = "5ea2c189"
+        private const val API_KEY = "a36cfb9b3b6e9ddd87212d7b106a82cb"
+        private const val API_SECRET = "a21702133210bff60dccac53d7d1208a"
+        private const val TAG = "XunfeiSpeech"
+    }
+
+    private var speechRecognizer: SpeechRecognizer? = null
+
+    private val _recognitionResult = MutableStateFlow("")
+    val recognitionResult: StateFlow<String> = _recognitionResult
+
+    private val _isRecognizing = MutableStateFlow(false)
+    val isRecognizing: StateFlow<Boolean> = _isRecognizing
+
+    init {
+        SpeechUtility.createUtility(context, "appid=$APP_ID")
+    }
+
+    fun recognizeAudioFile(audioPath: String, onResult: (String) -> Unit, onError: (String) -> Unit) {
+        speechRecognizer = SpeechRecognizer.createRecognizer(context, null)
+
+        speechRecognizer?.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_CLOUD)
+        speechRecognizer?.setParameter(SpeechConstant.LANGUAGE, "zh_cn")
+        speechRecognizer?.setParameter(SpeechConstant.ACCENT, "mandarin")
+        speechRecognizer?.setParameter(SpeechConstant.AUDIO_SOURCE, "-1")
+
+        _isRecognizing.value = true
+
+        val recognizerListener = object : RecognizerListener {
+            override fun onVolumeChanged(volume: Int, data: ByteArray?) {
+                Log.d(TAG, "Volume: $volume")
+            }
+
+            override fun onBeginOfSpeech() {
+                Log.d(TAG, "Begin of speech")
+            }
+
+            override fun onEndOfSpeech() {
+                Log.d(TAG, "End of speech")
+                _isRecognizing.value = false
+            }
+
+            override fun onResult(results: RecognizerResult?, isLast: Boolean) {
+                if (results != null) {
+                    val text = parseResult(results)
+                    _recognitionResult.value += text
+
+                    if (isLast) {
+                        onResult(_recognitionResult.value)
+                        _recognitionResult.value = ""
+                    }
+                }
+            }
+
+            override fun onError(error: SpeechError?) {
+                Log.e(TAG, "Recognition error: ${error?.errorDescription}")
+                _isRecognizing.value = false
+                onError(error?.errorDescription ?: "识别失败")
+            }
+
+            override fun onEvent(eventType: Int, arg1: Int, arg2: Int, obj: Bundle?) {
+                Log.d(TAG, "Event: $eventType")
+            }
+        }
+
+        speechRecognizer?.startListening(recognizerListener)
+    }
+
+    fun recognizeRealtime(onResult: (String) -> Unit, onError: (String) -> Unit) {
+        speechRecognizer = SpeechRecognizer.createRecognizer(context, null)
+
+        speechRecognizer?.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_CLOUD)
+        speechRecognizer?.setParameter(SpeechConstant.LANGUAGE, "zh_cn")
+        speechRecognizer?.setParameter(SpeechConstant.ACCENT, "mandarin")
+        speechRecognizer?.setParameter(SpeechConstant.RESULT_TYPE, "json")
+        speechRecognizer?.setParameter(SpeechConstant.VAD_BOS, "4000")
+        speechRecognizer?.setParameter(SpeechConstant.VAD_EOS, "1000")
+
+        _isRecognizing.value = true
+
+        val recognizerListener = object : RecognizerListener {
+            override fun onVolumeChanged(volume: Int, data: ByteArray?) {}
+
+            override fun onBeginOfSpeech() {
+                Log.d(TAG, "Begin of speech")
+            }
+
+            override fun onEndOfSpeech() {
+                Log.d(TAG, "End of speech")
+                _isRecognizing.value = false
+            }
+
+            override fun onResult(results: RecognizerResult?, isLast: Boolean) {
+                if (results != null) {
+                    val text = parseResult(results)
+                    _recognitionResult.value += text
+
+                    if (isLast) {
+                        onResult(_recognitionResult.value)
+                        _recognitionResult.value = ""
+                    }
+                }
+            }
+
+            override fun onError(error: SpeechError?) {
+                Log.e(TAG, "Recognition error: ${error?.errorDescription}")
+                _isRecognizing.value = false
+                onError(error?.errorDescription ?: "识别失败")
+            }
+
+            override fun onEvent(eventType: Int, arg1: Int, arg2: Int, obj: Bundle?) {}
+        }
+
+        speechRecognizer?.startListening(recognizerListener)
+    }
+
+    fun stopRecognition() {
+        speechRecognizer?.stopListening()
+        _isRecognizing.value = false
+    }
+
+    fun cancel() {
+        speechRecognizer?.cancel()
+        _isRecognizing.value = false
+    }
+
+    fun release() {
+        speechRecognizer?.destroy()
+        speechRecognizer = null
+    }
+
+    private fun parseResult(results: RecognizerResult): String {
+        return try {
+            val resultString = results.resultString
+            val jsonResult = org.json.JSONObject(resultString)
+            val ws = jsonResult.getJSONArray("ws")
+            val stringBuilder = StringBuilder()
+
+            for (i in 0 until ws.length()) {
+                val wsItem = ws.getJSONObject(i)
+                val cw = wsItem.getJSONArray("cw")
+                for (j in 0 until cw.length()) {
+                    val cwItem = cw.getJSONObject(j)
+                    val word = cwItem.getString("w")
+                    stringBuilder.append(word)
+                }
+            }
+
+            stringBuilder.toString()
+        } catch (e: Exception) {
+            Log.e(TAG, "Parse result error", e)
+            ""
+        }
+    }
+}
