@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.voicejournal.ui.components.ParticleBackground
 import com.voicejournal.viewmodel.SocialViewModel
+import com.voicejournal.social.SocialPlatform
 
 @Composable
 fun SocialScreen(
@@ -25,7 +26,7 @@ fun SocialScreen(
     onNavigateBack: () -> Unit
 ) {
     val isSharing by viewModel.isSharing.collectAsStateWithLifecycle()
-    var selectedPlatform by remember { mutableStateOf<String?>(null) }
+    var selectedPlatform by remember { mutableStateOf<SocialPlatform?>(null) }
 
     Box(
         modifier = Modifier
@@ -96,25 +97,25 @@ fun SocialScreen(
                                 icon = Icons.Default.Message,
                                 name = "微信",
                                 description = "分享到微信好友",
-                                onClick = { selectedPlatform = "wechat" }
+                                onClick = { selectedPlatform = SocialPlatform.WECHAT }
                             )
                             SharePlatformItem(
                                 icon = Icons.Default.Group,
                                 name = "朋友圈",
                                 description = "分享到微信朋友圈",
-                                onClick = { selectedPlatform = "moments" }
+                                onClick = { selectedPlatform = SocialPlatform.WECHAT }
                             )
                             SharePlatformItem(
                                 icon = Icons.Default.Email,
                                 name = "邮件",
                                 description = "通过邮件分享",
-                                onClick = { selectedPlatform = "email" }
+                                onClick = { selectedPlatform = SocialPlatform.WEIBO }
                             )
                             SharePlatformItem(
                                 icon = Icons.Default.Link,
                                 name = "复制链接",
                                 description = "复制分享链接",
-                                onClick = { selectedPlatform = "link" }
+                                onClick = { selectedPlatform = SocialPlatform.QQ }
                             )
                         }
                     }
@@ -263,12 +264,11 @@ fun SharePlatformItem(
     }
 }
 
-fun getPlatformName(platform: String): String {
+fun getPlatformName(platform: SocialPlatform): String {
     return when (platform) {
-        "wechat" -> "微信"
-        "moments" -> "朋友圈"
-        "email" -> "邮件"
-        "link" -> "复制链接"
-        else -> "未知平台"
+        SocialPlatform.WECHAT -> "微信"
+        SocialPlatform.WEIBO -> "微博"
+        SocialPlatform.QQ -> "QQ"
+        SocialPlatform.DOUBAN -> "豆瓣"
     }
 }

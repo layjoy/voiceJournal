@@ -110,7 +110,10 @@ fun TimelineScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    items(entries, key = { it.id }) { entry ->
+                    items(
+                        items = entries,
+                        key = { entry: JournalEntry -> entry.id }
+                    ) { entry: JournalEntry ->
                         EnhancedJournalEntryCard(
                             entry = entry,
                             isExpanded = selectedEntry?.id == entry.id,
@@ -370,7 +373,7 @@ fun InfoChip(
     }
 }
 
-fun formatDate(timestamp: Long): String {
+private fun formatDate(timestamp: Long): String {
     val sdf = SimpleDateFormat("yyyy年MM月dd日", Locale.CHINA)
     return sdf.format(Date(timestamp))
 }

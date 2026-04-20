@@ -113,7 +113,7 @@ fun SearchScreen(
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(searchResults, key = { it.id }) { entry ->
+                        items(searchResults) { entry ->
                             SearchResultCard(
                                 entry = entry,
                                 searchQuery = searchQuery,
@@ -242,7 +242,7 @@ fun SearchResultCard(
     }
 }
 
-fun formatDate(timestamp: Long): String {
+private fun formatDate(timestamp: Long): String {
     val sdf = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.CHINA)
     return sdf.format(java.util.Date(timestamp))
 }

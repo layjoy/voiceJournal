@@ -2,23 +2,9 @@ package com.voicejournal.notification
 
 import android.app.AlarmManager
 import android.app.PendingIntent
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-
-class CapsuleAlarmReceiver : BroadcastReceiver() {
-
-    override fun onReceive(context: Context, intent: Intent) {
-        val capsuleId = intent.getStringExtra("capsule_id") ?: return
-        val capsuleTitle = intent.getStringExtra("capsule_title") ?: "未命名胶囊"
-
-        Log.d("CapsuleAlarm", "Capsule unlocked: $capsuleId")
-
-        val notificationManager = CapsuleNotificationManager(context)
-        notificationManager.showCapsuleUnlockedNotification(capsuleTitle)
-    }
-}
 
 class CapsuleAlarmScheduler(private val context: Context) {
 

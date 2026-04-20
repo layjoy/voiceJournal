@@ -20,6 +20,9 @@ class AnalyticsViewModel(application: Application) : AndroidViewModel(applicatio
         repository = JournalRepository(database.journalDao())
     }
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
     private val _emotionTrends = MutableStateFlow<List<EmotionAnalytics.EmotionTrend>>(emptyList())
     val emotionTrends: StateFlow<List<EmotionAnalytics.EmotionTrend>> = _emotionTrends
 
@@ -33,12 +36,14 @@ class AnalyticsViewModel(application: Application) : AndroidViewModel(applicatio
         loadAnalytics()
     }
 
-    private fun loadAnalytics() {
+    fun loadAnalytics() {
+        _isLoading.value = true
         viewModelScope.launch {
             repository.getAllEntries().collect { entries ->
                 _emotionTrends.value = analytics.analyzeEmotionTrends(entries, 30)
                 _timePatterns.value = analytics.analyzeTimePatterns(entries)
                 _weeklyReport.value = analytics.generateWeeklyReport(entries)
+                _isLoading.value = false
             }
         }
     }

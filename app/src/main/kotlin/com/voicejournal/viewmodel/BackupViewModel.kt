@@ -24,6 +24,9 @@ class BackupViewModel(application: Application) : AndroidViewModel(application) 
     private val _isBackingUp = MutableStateFlow(false)
     val isBackingUp: StateFlow<Boolean> = _isBackingUp
 
+    private val _isCreatingBackup = MutableStateFlow(false)
+    val isCreatingBackup: StateFlow<Boolean> = _isCreatingBackup
+
     private val _isRestoring = MutableStateFlow(false)
     val isRestoring: StateFlow<Boolean> = _isRestoring
 
@@ -40,6 +43,7 @@ class BackupViewModel(application: Application) : AndroidViewModel(application) 
     fun createBackup() {
         viewModelScope.launch {
             _isBackingUp.value = true
+            _isCreatingBackup.value = true
             _backupResult.value = null
             try {
                 repository.getAllEntries().collect { entries ->
@@ -51,6 +55,7 @@ class BackupViewModel(application: Application) : AndroidViewModel(application) 
                 _backupResult.value = "备份失败: ${e.message}"
             } finally {
                 _isBackingUp.value = false
+                _isCreatingBackup.value = false
             }
         }
     }
@@ -77,7 +82,7 @@ class BackupViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    private fun loadBackupFiles() {
+    fun loadBackupFiles() {
         viewModelScope.launch {
             _backupFiles.value = backupManager.listBackups()
         }

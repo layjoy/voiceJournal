@@ -4,6 +4,10 @@ import com.voicejournal.data.model.Emotion
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
+enum class SocialPlatform {
+    WECHAT, WEIBO, QQ, DOUBAN
+}
+
 data class CommunityPost(
     val id: Long,
     val content: String,
@@ -68,7 +72,7 @@ class SocialManager {
         )
     }
 
-    fun shareToComm unity(content: String, emotion: Emotion) {
+    fun shareToCommunity(content: String, emotion: Emotion) {
         val newPost = CommunityPost(
             id = System.currentTimeMillis(),
             content = content,

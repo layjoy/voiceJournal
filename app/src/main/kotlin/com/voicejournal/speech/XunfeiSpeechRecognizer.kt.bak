@@ -144,7 +144,7 @@ class XunfeiSpeechRecognizer(private val context: Context) {
     private fun parseResult(results: RecognizerResult): String {
         return try {
             val resultString = results.resultString
-            val jsonResult = org.json.JSONObject(resultString)
+            val jsonResult = org.json.JSONObject(resultString as String)
             val ws = jsonResult.getJSONArray("ws")
             val stringBuilder = StringBuilder()
 
@@ -154,7 +154,7 @@ class XunfeiSpeechRecognizer(private val context: Context) {
                 for (j in 0 until cw.length()) {
                     val cwItem = cw.getJSONObject(j)
                     val word = cwItem.getString("w")
-                    stringBuilder.append(word)
+                    stringBuilder.append(word as String)
                 }
             }
 

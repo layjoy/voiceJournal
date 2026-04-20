@@ -8,6 +8,6 @@ class CapsuleAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val entryId = intent.getStringExtra("entry_id") ?: return
         val notificationManager = CapsuleNotificationManager(context)
-        notificationManager.showCapsuleUnlockNotification(entryId)
+        notificationManager.showCapsuleUnlockedNotification("时光胶囊已解锁")
     }
 }

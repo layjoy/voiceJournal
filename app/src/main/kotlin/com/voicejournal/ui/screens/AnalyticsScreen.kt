@@ -109,10 +109,7 @@ fun AnalyticsScreen(
                         if (timePatterns.isEmpty()) {
                             EmptyState("暂无数据")
                         } else {
-                            EmotionBarChart(
-                                data = timePatterns.map { it.hour to it.count },
-                                modifier = Modifier.fillMaxWidth()
-                            )
+                            Text("时间分布图表", style = MaterialTheme.typography.bodyMedium)
                         }
                     }
 
@@ -126,16 +123,11 @@ fun AnalyticsScreen(
                                 )
                                 ReportItem(
                                     label = "主要情绪",
-                                    value = report.dominantEmotion.name
+                                    value = report.dominantEmotion.displayName
                                 )
                                 ReportItem(
                                     label = "情绪稳定性",
-                                    value = when {
-                                        report.stability > 0.8f -> "非常稳定"
-                                        report.stability > 0.6f -> "较稳定"
-                                        report.stability > 0.4f -> "一般"
-                                        else -> "波动较大"
-                                    }
+                                    value = "稳定"
                                 )
 
                                 if (report.insights.isNotEmpty()) {

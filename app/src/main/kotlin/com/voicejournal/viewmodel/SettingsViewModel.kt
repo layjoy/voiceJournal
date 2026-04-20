@@ -13,7 +13,10 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     val themeMode: StateFlow<String> = settingsManager.themeMode as StateFlow<String>
     val notificationEnabled: StateFlow<Boolean> = settingsManager.notificationEnabled as StateFlow<Boolean>
+    val notificationsEnabled: StateFlow<Boolean> = settingsManager.notificationEnabled as StateFlow<Boolean>
+    val dailyReminderEnabled: StateFlow<Boolean> = settingsManager.notificationEnabled as StateFlow<Boolean>
     val autoBackup: StateFlow<Boolean> = settingsManager.autoBackup as StateFlow<Boolean>
+    val autoBackupEnabled: StateFlow<Boolean> = settingsManager.autoBackup as StateFlow<Boolean>
     val audioQuality: StateFlow<String> = settingsManager.audioQuality as StateFlow<String>
     val language: StateFlow<String> = settingsManager.language as StateFlow<String>
     val biometricEnabled: StateFlow<Boolean> = settingsManager.biometricEnabled as StateFlow<Boolean>
@@ -30,10 +33,22 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun setNotificationsEnabled(enabled: Boolean) {
+        setNotificationEnabled(enabled)
+    }
+
+    fun setDailyReminderEnabled(enabled: Boolean) {
+        setNotificationEnabled(enabled)
+    }
+
     fun setAutoBackup(enabled: Boolean) {
         viewModelScope.launch {
             settingsManager.setAutoBackup(enabled)
         }
+    }
+
+    fun setAutoBackupEnabled(enabled: Boolean) {
+        setAutoBackup(enabled)
     }
 
     fun setAudioQuality(quality: String) {

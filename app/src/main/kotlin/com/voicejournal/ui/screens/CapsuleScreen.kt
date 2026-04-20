@@ -99,7 +99,7 @@ fun CapsuleScreen(
                             color = Color.Gray
                         )
                         Text(
-                            text = "录制日记时选择"时光胶囊"即可创建",
+                            text = "录制日记时选择\"时光胶囊\"即可创建",
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.Gray.copy(alpha = 0.7f)
                         )
@@ -111,7 +111,10 @@ fun CapsuleScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    items(capsules, key = { it.id }) { capsule ->
+                    items(
+                        items = capsules,
+                        key = { capsule: JournalEntry -> capsule.id }
+                    ) { capsule: JournalEntry ->
                         EnhancedCapsuleCard(
                             capsule = capsule,
                             isUnlocked = viewModel.isUnlocked(capsule),
@@ -377,7 +380,7 @@ fun EnhancedCapsuleCard(
     }
 }
 
-fun formatDate(timestamp: Long): String {
+private fun formatDate(timestamp: Long): String {
     val sdf = SimpleDateFormat("yyyy年MM月dd日", Locale.CHINA)
     return sdf.format(Date(timestamp))
 }

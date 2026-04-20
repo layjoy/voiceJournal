@@ -24,6 +24,9 @@ class ExportViewModel(application: Application) : AndroidViewModel(application) 
     private val _isExporting = MutableStateFlow(false)
     val isExporting: StateFlow<Boolean> = _isExporting
 
+    private val _exportProgress = MutableStateFlow(0f)
+    val exportProgress: StateFlow<Float> = _exportProgress
+
     private val _exportedFile = MutableStateFlow<File?>(null)
     val exportedFile: StateFlow<File?> = _exportedFile
 
@@ -71,5 +74,14 @@ class ExportViewModel(application: Application) : AndroidViewModel(application) 
 
     fun shareFile(file: File, mimeType: String = "text/plain") {
         exportManager.shareFile(file, mimeType)
+    }
+
+    fun exportData(format: String) {
+        when (format.lowercase()) {
+            "text", "txt" -> exportAsText()
+            "json" -> exportAsJson()
+            "csv" -> exportAsCsv()
+            else -> exportAsText()
+        }
     }
 }

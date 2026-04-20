@@ -24,6 +24,9 @@ class TagViewModel(application: Application) : AndroidViewModel(application) {
     private val _selectedTags = MutableStateFlow<List<String>>(emptyList())
     val selectedTags: StateFlow<List<String>> = _selectedTags
 
+    private val _tagUsageCount = MutableStateFlow<Map<String, Int>>(emptyMap())
+    val tagUsageCount: StateFlow<Map<String, Int>> = _tagUsageCount
+
     init {
         loadTags()
     }
@@ -32,13 +35,17 @@ class TagViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             repository.getAllEntries().collect { entries ->
                 val tags = mutableSetOf<String>()
+                val usageCount = mutableMapOf<String, Int>()
                 entries.forEach { entry ->
                     val tagPattern = "#(\\w+)".toRegex()
                     tagPattern.findAll(entry.transcription).forEach { match ->
-                        tags.add(match.groupValues[1])
+                        val tag = match.groupValues[1]
+                        tags.add(tag)
+                        usageCount[tag] = (usageCount[tag] ?: 0) + 1
                     }
                 }
                 _allTags.value = tags.sorted()
+                _tagUsageCount.value = usageCount
             }
         }
     }
@@ -55,5 +62,27 @@ class TagViewModel(application: Application) : AndroidViewModel(application) {
 
     fun clearTags() {
         _selectedTags.value = emptyList()
+    }
+
+    fun loadAllTags() {
+        loadTags()
+    }
+
+    fun addTag(tag: String) {
+        viewModelScope.launch {
+            val current = _allTags.value.toMutableList()
+            if (!current.contains(tag)) {
+                current.add(tag)
+                _allTags.value = current.sorted()
+            }
+        }
+    }
+
+    fun deleteTag(tag: String) {
+        viewModelScope.launch {
+            val current = _allTags.value.toMutableList()
+            current.remove(tag)
+            _allTags.value = current
+        }
     }
 }

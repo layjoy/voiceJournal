@@ -10,7 +10,7 @@ import com.voicejournal.data.model.Emotion
 import com.voicejournal.data.model.JournalEntry
 import com.voicejournal.data.repository.JournalRepository
 import com.voicejournal.emotion.EmotionAnalyzer
-import com.voicejournal.speech.XunfeiSpeechRecognizer
+// import com.voicejournal.speech.XunfeiSpeechRecognizer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -20,7 +20,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
 
     private val audioRecorder = AudioRecorder(application)
     private val audioPlayer = AudioPlayer(application)
-    private val speechRecognizer = XunfeiSpeechRecognizer(application)
+    // private val speechRecognizer = XunfeiSpeechRecognizer(application)
     private val emotionAnalyzer = EmotionAnalyzer()
 
     private val repository: JournalRepository
@@ -91,17 +91,22 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private fun recognizeAudio(audioPath: String) {
-        speechRecognizer.recognizeAudioFile(
-            audioPath = audioPath,
-            onResult = { text ->
-                _transcription.value = text
-                val emotion = emotionAnalyzer.analyzeEmotion(text)
-                _detectedEmotion.value = emotion
-            },
-            onError = { error ->
-                _transcription.value = "识别失败: $error"
-            }
-        )
+        // TODO: 集成讯飞语音识别 SDK
+        // speechRecognizer.recognizeAudioFile(
+        //     audioPath = audioPath,
+        //     onResult = { text ->
+        //         _transcription.value = text
+        //         val emotion = emotionAnalyzer.analyzeEmotion(text)
+        //         _detectedEmotion.value = emotion
+        //     },
+        //     onError = { error ->
+        //         Log.e("RecordViewModel", "Speech recognition error: $error")
+        //     }
+        // )
+
+        // 临时方案：使用占位文本
+        _transcription.value = "语音识别功能待集成"
+        _detectedEmotion.value = Emotion.NEUTRAL
     }
 
     fun saveJournalEntry(isCapsule: Boolean = false, unlockTime: Long? = null) {
@@ -139,6 +144,6 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
         super.onCleared()
         audioRecorder.release()
         audioPlayer.release()
-        speechRecognizer.release()
+        // speechRecognizer.release()
     }
 }

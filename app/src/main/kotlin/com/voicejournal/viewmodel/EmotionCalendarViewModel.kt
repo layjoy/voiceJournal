@@ -3,6 +3,7 @@ package com.voicejournal.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.voicejournal.data.database.JournalDatabase
 import com.voicejournal.data.model.Emotion
 import com.voicejournal.data.model.JournalEntry
 import com.voicejournal.data.repository.JournalRepository
@@ -13,7 +14,7 @@ import kotlinx.coroutines.launch
 import java.util.*
 
 class EmotionCalendarViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository = JournalRepository(application)
+    private val repository = JournalRepository(JournalDatabase.getDatabase(application).journalDao())
 
     private val _calendarData = MutableStateFlow<Map<Int, Emotion?>>(emptyMap())
     val calendarData: StateFlow<Map<Int, Emotion?>> = _calendarData.asStateFlow()

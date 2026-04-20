@@ -19,7 +19,5 @@ enum class Emotion(val color: Long, val displayName: String) {
     CALM(0xFF4ECDC4, "平静"),
     EXCITED(0xFFFF6584, "兴奋"),
     ANXIOUS(0xFF9370DB, "焦虑"),
-    NEUTRAL(0xFF808080, "中性");
-
-    val name: String get() = this.name
+    NEUTRAL(0xFF808080, "中性")
 }

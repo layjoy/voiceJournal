@@ -162,13 +162,7 @@ fun ExportScreen(
                 // 导出按钮
                 Button(
                     onClick = {
-                        viewModel.exportData(
-                            format = selectedFormat,
-                            dateRange = selectedDateRange,
-                            includeAudio = includeAudio,
-                            includeEmotions = includeEmotions,
-                            includeTags = includeTags
-                        )
+                        viewModel.exportData(selectedFormat)
                     },
                     enabled = !isExporting,
                     modifier = Modifier
