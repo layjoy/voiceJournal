@@ -10,7 +10,7 @@ import com.voicejournal.data.model.Emotion
 import com.voicejournal.data.model.JournalEntry
 import com.voicejournal.data.repository.JournalRepository
 import com.voicejournal.emotion.EmotionAnalyzer
-// import com.voicejournal.speech.XunfeiSpeechRecognizer
+import com.voicejournal.speech.RealtimeSpeechRecognizer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -20,7 +20,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
 
     private val audioRecorder = AudioRecorder(application)
     private val audioPlayer = AudioPlayer(application)
-    // private val speechRecognizer = XunfeiSpeechRecognizer(application)
+    private val speechRecognizer = RealtimeSpeechRecognizer(application)
     private val emotionAnalyzer = EmotionAnalyzer()
 
     private val repository: JournalRepository
@@ -28,6 +28,17 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     init {
         val database = JournalDatabase.getDatabase(application)
         repository = JournalRepository(database.journalDao())
+
+        // 监听实时语音识别结果
+        viewModelScope.launch {
+            speechRecognizer.recognizedText.collect { text ->
+                _transcription.value = text
+                if (text.isNotEmpty()) {
+                    val emotion = emotionAnalyzer.analyzeEmotion(text)
+                    _detectedEmotion.value = emotion
+                }
+            }
+        }
     }
 
     private val _isRecording = MutableStateFlow(false)
@@ -57,6 +68,11 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
             _isRecording.value = true
             _currentAudioPath.value = path
             _recordingTime.value = 0
+
+            // 重置并启动实时语音识别
+            speechRecognizer.reset()
+            speechRecognizer.startListening()
+
             startTimer()
             startAmplitudeMonitor()
         }
@@ -66,9 +82,8 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
         val path = audioRecorder.stopRecording()
         _isRecording.value = false
 
-        if (path != null) {
-            recognizeAudio(path)
-        }
+        // 停止实时语音识别
+        speechRecognizer.stopListening()
     }
 
     private fun startTimer() {
@@ -88,25 +103,6 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                 delay(100)
             }
         }
-    }
-
-    private fun recognizeAudio(audioPath: String) {
-        // TODO: 集成讯飞语音识别 SDK
-        // speechRecognizer.recognizeAudioFile(
-        //     audioPath = audioPath,
-        //     onResult = { text ->
-        //         _transcription.value = text
-        //         val emotion = emotionAnalyzer.analyzeEmotion(text)
-        //         _detectedEmotion.value = emotion
-        //     },
-        //     onError = { error ->
-        //         Log.e("RecordViewModel", "Speech recognition error: $error")
-        //     }
-        // )
-
-        // 临时方案：使用占位文本
-        _transcription.value = "语音识别功能待集成"
-        _detectedEmotion.value = Emotion.NEUTRAL
     }
 
     fun saveJournalEntry(isCapsule: Boolean = false, unlockTime: Long? = null) {
@@ -138,12 +134,13 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
         _detectedEmotion.value = Emotion.NEUTRAL
         _recordingTime.value = 0
         _amplitude.value = 0
+        speechRecognizer.reset()
     }
 
     override fun onCleared() {
         super.onCleared()
         audioRecorder.release()
         audioPlayer.release()
-        // speechRecognizer.release()
+        speechRecognizer.release()
     }
 }
