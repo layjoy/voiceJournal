@@ -20,7 +20,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
 
     private val audioRecorder = AudioRecorder(application)
     private val audioPlayer = AudioPlayer(application)
-    private val speechRecognizer = RealtimeSpeechRecognizer(application)
+    private val speechRecognizer by lazy { RealtimeSpeechRecognizer(application) }
     private val emotionAnalyzer = EmotionAnalyzer()
 
     private val repository: JournalRepository
@@ -28,7 +28,9 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     init {
         val database = JournalDatabase.getDatabase(application)
         repository = JournalRepository(database.journalDao())
+    }
 
+    private fun startSpeechRecognitionMonitoring() {
         // 监听实时语音识别结果
         viewModelScope.launch {
             speechRecognizer.recognizedText.collect { text ->
@@ -68,6 +70,9 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
             _isRecording.value = true
             _currentAudioPath.value = path
             _recordingTime.value = 0
+
+            // 启动语音识别监听
+            startSpeechRecognitionMonitoring()
 
             // 重置并启动实时语音识别
             speechRecognizer.reset()

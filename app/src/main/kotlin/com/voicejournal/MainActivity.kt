@@ -29,17 +29,28 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // 设置全局异常处理器
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            android.util.Log.e("MainActivity", "Uncaught exception", throwable)
+            throwable.printStackTrace()
+        }
+
         checkAndRequestPermissions()
 
-        setContent {
-            VoiceJournalTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    VoiceJournalApp()
+        try {
+            setContent {
+                VoiceJournalTheme {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        VoiceJournalApp()
+                    }
                 }
             }
+        } catch (e: Exception) {
+            android.util.Log.e("MainActivity", "Error in setContent", e)
+            Toast.makeText(this, "启动失败: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
 
