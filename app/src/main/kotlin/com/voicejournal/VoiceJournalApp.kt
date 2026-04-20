@@ -151,7 +151,8 @@ fun VoiceJournalApp() {
                     viewModel = viewModel,
                     onNavigateBack = { navController.popBackStack() },
                     onNavigateToBackup = { navController.navigate("backup") },
-                    onNavigateToExport = { navController.navigate("export") }
+                    onNavigateToExport = { navController.navigate("export") },
+                    onNavigateToAIConfig = { navController.navigate("ai_config") }
                 )
             }
 
@@ -186,6 +187,15 @@ fun VoiceJournalApp() {
             composable("social") {
                 val viewModel: SocialViewModel = viewModel()
                 SocialScreen(
+                    viewModel = viewModel,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+
+            // AI 配置
+            composable("ai_config") {
+                val viewModel: AIConfigViewModel = viewModel()
+                AIConfigScreen(
                     viewModel = viewModel,
                     onNavigateBack = { navController.popBackStack() }
                 )

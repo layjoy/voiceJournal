@@ -26,7 +26,8 @@ fun SettingsScreen(
     viewModel: SettingsViewModel,
     onNavigateBack: () -> Unit,
     onNavigateToBackup: () -> Unit,
-    onNavigateToExport: () -> Unit
+    onNavigateToExport: () -> Unit,
+    onNavigateToAIConfig: () -> Unit = {}
 ) {
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
     val notificationsEnabled by viewModel.notificationsEnabled.collectAsStateWithLifecycle()
@@ -167,6 +168,16 @@ fun SettingsScreen(
                         title = "导出数据",
                         subtitle = "导出日记为文件",
                         onClick = onNavigateToExport
+                    )
+                }
+
+                // AI 设置
+                SettingsSection(title = "AI 功能") {
+                    SettingsItem(
+                        icon = Icons.Default.SmartToy,
+                        title = "AI 分析配置",
+                        subtitle = "配置 AI 提供商和 API Key",
+                        onClick = onNavigateToAIConfig
                     )
                 }
 
